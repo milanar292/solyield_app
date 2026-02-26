@@ -69,8 +69,8 @@ Key design decisions:
 ![sites](https://github.com/user-attachments/assets/4f2e12c8-f03f-4956-ba1b-06d969900380)
 ![maps](https://github.com/user-attachments/assets/d0f2ce62-e82c-4bf9-8723-07c4ee8005e1)
 ![pdf](https://github.com/user-attachments/assets/0550a533-74f3-4e64-8476-2a109a4b6677)
-![visits](https://github.com/user-attachments/![report](https://github.com/user-attachments/assets/18488bec-7082-4c92-a35a-3a1a9c688b6c)
-assets/cd523f92-59d8-4dae-ad12-c3836af22886)
+![visits]![visits](https://github.com/user-attachments/assets/34c654f7-e1ce-473f-b046-9dd2158a21bc)
+
 
 
 ## 🎥 Video Walkthrough
