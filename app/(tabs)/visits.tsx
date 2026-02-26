@@ -1,6 +1,7 @@
 import * as Calendar from "expo-calendar";
 import * as Location from "expo-location";
 import * as Print from "expo-print";
+import { useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import React, { useState } from "react";
 import {
@@ -13,10 +14,8 @@ import {
 } from "react-native";
 import { BarChart, PieChart } from "react-native-gifted-charts";
 
-// 👨‍🔧 Technician
 const technician = { name: "Arjun Menon" };
 
-// 🌞 Sites
 const sites = [
   {
     id: "SITE001",
@@ -38,7 +37,6 @@ const sites = [
   },
 ];
 
-// 📅 Visits
 const initialVisits = [
   {
     id: "VISIT001",
@@ -46,7 +44,7 @@ const initialVisits = [
     date: "2026-02-23",
     time: "10:00",
     status: "Upcoming",
-    checkInTime: null,
+    checkInTime: null as string | null,
   },
   {
     id: "VISIT002",
@@ -54,7 +52,7 @@ const initialVisits = [
     date: "2026-02-23",
     time: "14:00",
     status: "Upcoming",
-    checkInTime: null,
+    checkInTime: null as string | null,
   },
   {
     id: "VISIT003",
@@ -62,11 +60,10 @@ const initialVisits = [
     date: "2026-02-23",
     time: "17:00",
     status: "Upcoming",
-    checkInTime: null,
+    checkInTime: null as string | null,
   },
 ];
 
-// 📊 Chart data
 const generationData = [
   { value: 120, label: "Mon" },
   { value: 150, label: "Tue" },
@@ -75,10 +72,14 @@ const generationData = [
   { value: 200, label: "Fri" },
 ];
 
-// 📏 Distance helper
-const distanceMeters = (lat1, lon1, lat2, lon2) => {
+const distanceMeters = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+) => {
   const R = 6371e3;
-  const toRad = (d) => (d * Math.PI) / 180;
+  const toRad = (d: number) => (d * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
   const a =
@@ -89,11 +90,11 @@ const distanceMeters = (lat1, lon1, lat2, lon2) => {
 
 export default function VisitsScreen() {
   const [visits, setVisits] = useState(initialVisits);
+  const router = useRouter();
 
-  const getSite = (id) => sites.find((s) => s.id === id);
+  const getSite = (id: string) => sites.find((s) => s.id === id)!;
 
-  // 📍 Check-In
-  const handleCheckIn = async (visit) => {
+  const handleCheckIn = async (visit: (typeof initialVisits)[0]) => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") return;
 
@@ -108,7 +109,10 @@ export default function VisitsScreen() {
     );
 
     if (dist > 500) {
-      Alert.alert("Too far from site");
+      Alert.alert(
+        "❌ Too Far",
+        "You must be within 500m of the site to check in.",
+      );
       return;
     }
 
@@ -123,12 +127,13 @@ export default function VisitsScreen() {
           : v,
       ),
     );
-
-    Alert.alert("Check-in successful");
+    Alert.alert(
+      "✅ Check-in Successful",
+      `Checked in at ${new Date().toLocaleString()}`,
+    );
   };
 
-  // 📆 Calendar
-  const addToCalendar = async (visit) => {
+  const addToCalendar = async (visit: (typeof initialVisits)[0]) => {
     const { status } = await Calendar.requestCalendarPermissionsAsync();
     if (status !== "granted") return;
 
@@ -145,29 +150,71 @@ export default function VisitsScreen() {
       notes: "Solar site visit",
     });
 
-    Alert.alert("Added to calendar");
+    Alert.alert("📅 Added to Calendar");
   };
 
-  // 📄 PDF Report (TASK 1.4)
   const generateReport = async () => {
     const completed = visits.filter((v) => v.status === "Completed");
 
+    const barChartHTML = generationData
+      .map(
+        (d) =>
+          `<div style="display:inline-block; margin: 4px; text-align:center">
+        <div style="width:30px; height:${d.value / 2}px; background:#3b82f6; margin:auto"></div>
+        <div style="font-size:11px; color:#555">${d.label}</div>
+        <div style="font-size:11px">${d.value}</div>
+      </div>`,
+      )
+      .join("");
+
+    const doneCount = completed.length;
+    const pendingCount = visits.length - doneCount;
+    const total = visits.length;
+    const donePct = Math.round((doneCount / total) * 100);
+    const pendingPct = 100 - donePct;
+
     const html = `
       <html>
-        <body style="font-family: Arial; padding: 20px">
-          <h1>Visit Report</h1>
+        <body style="font-family: Arial; padding: 20px; color: #1e293b">
+          <h1 style="color:#3b82f6">🌞 SolYield Visit Report</h1>
           <h3>Technician: ${technician.name}</h3>
-          ${completed
-            .map((v) => {
-              const site = getSite(v.siteId);
-              return `
-                <p><b>${site.name}</b></p>
-                <p>Date: ${v.date} ${v.time}</p>
-                <p>Check-in: ${v.checkInTime}</p>
-                <hr/>
-              `;
-            })
-            .join("")}
+          <p>Generated: ${new Date().toLocaleString()}</p>
+          <hr/>
+
+          <h2>Daily Generation (kWh)</h2>
+          <div style="display:flex; align-items:flex-end; height:120px; border-bottom:1px solid #ccc; padding-bottom:8px">
+            ${barChartHTML}
+          </div>
+
+          <h2>Performance Overview</h2>
+          <table style="border-collapse:collapse; width:200px">
+            <tr>
+              <td style="padding:6px; background:#22c55e; color:white; border-radius:4px">✅ Completed</td>
+              <td style="padding:6px">${doneCount} (${donePct}%)</td>
+            </tr>
+            <tr>
+              <td style="padding:6px; background:#f97316; color:white; border-radius:4px">⏳ Pending</td>
+              <td style="padding:6px">${pendingCount} (${pendingPct}%)</td>
+            </tr>
+          </table>
+
+          <h2>Visit Details</h2>
+          ${
+            completed.length === 0
+              ? "<p style='color:#f97316'>No completed visits yet.</p>"
+              : completed
+                  .map((v) => {
+                    const site = getSite(v.siteId);
+                    return `
+                  <div style="border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:12px">
+                    <b>${site.name}</b>
+                    <p>Date: ${v.date} at ${v.time}</p>
+                    <p>Check-in Time: ${v.checkInTime}</p>
+                  </div>
+                `;
+                  })
+                  .join("")
+          }
         </body>
       </html>
     `;
@@ -183,8 +230,18 @@ export default function VisitsScreen() {
       keyExtractor={(i) => i.id}
       ListHeaderComponent={
         <>
-          <Text style={{ color: "white", fontSize: 26, fontWeight: "bold" }}>
-            Field Operations Dashboard
+          <Text
+            style={{
+              color: "white",
+              fontSize: 26,
+              fontWeight: "bold",
+              marginTop: 40,
+            }}
+          >
+            Field Operations 🔧
+          </Text>
+          <Text style={{ color: "#94a3b8", marginBottom: 16 }}>
+            {new Date().toDateString()}
           </Text>
 
           <TouchableOpacity
@@ -193,18 +250,34 @@ export default function VisitsScreen() {
               backgroundColor: "#3b82f6",
               padding: 12,
               borderRadius: 10,
-              marginVertical: 15,
+              marginBottom: 20,
             }}
           >
-            <Text style={{ color: "white", textAlign: "center" }}>
+            <Text
+              style={{ color: "white", textAlign: "center", fontWeight: "600" }}
+            >
               Generate Visit Report 📄
             </Text>
           </TouchableOpacity>
 
-          <Text style={{ color: "white" }}>Daily Generation</Text>
-          <BarChart data={generationData} barWidth={22} />
+          <Text style={{ color: "white", fontWeight: "600", marginBottom: 8 }}>
+            Daily Generation (kWh)
+          </Text>
+          <BarChart
+            data={generationData}
+            barWidth={22}
+            barBorderRadius={4}
+            frontColor="#3b82f6"
+          />
 
-          <Text style={{ color: "white", marginTop: 20 }}>
+          <Text
+            style={{
+              color: "white",
+              fontWeight: "600",
+              marginTop: 20,
+              marginBottom: 8,
+            }}
+          >
             Performance Overview
           </Text>
           <PieChart
@@ -222,6 +295,17 @@ export default function VisitsScreen() {
             ]}
             showText
           />
+
+          <Text
+            style={{
+              color: "white",
+              fontWeight: "600",
+              marginTop: 20,
+              marginBottom: 4,
+            }}
+          >
+            Today's Visits
+          </Text>
         </>
       }
       renderItem={({ item }) => {
@@ -232,42 +316,115 @@ export default function VisitsScreen() {
               backgroundColor: "#1e293b",
               padding: 15,
               borderRadius: 12,
-              marginTop: 15,
+              marginTop: 12,
             }}
           >
-            <Text style={{ color: "white", fontWeight: "600" }}>
+            <Text style={{ color: "white", fontWeight: "600", fontSize: 16 }}>
               {site.name}
             </Text>
-            <Text style={{ color: "#94a3b8" }}>
+            <Text style={{ color: "#94a3b8", marginTop: 2 }}>
               {item.date} | {item.time}
             </Text>
-            <Text style={{ color: "#22c55e" }}>{item.status}</Text>
+            <Text
+              style={{
+                color: item.status === "Completed" ? "#22c55e" : "#f97316",
+                marginTop: 2,
+              }}
+            >
+              {item.status === "Completed"
+                ? `✅ Completed • ${item.checkInTime}`
+                : "⏳ Upcoming"}
+            </Text>
 
-            {item.status !== "Completed" && (
-              <TouchableOpacity onPress={() => handleCheckIn(item)}>
-                <Text style={{ color: "#22c55e", marginTop: 6 }}>
-                  I’m Here (Check-In)
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                gap: 8,
+                marginTop: 10,
+              }}
+            >
+              {item.status !== "Completed" && (
+                <TouchableOpacity
+                  onPress={() => handleCheckIn(item)}
+                  style={{
+                    backgroundColor: "#22c55e",
+                    padding: 8,
+                    borderRadius: 8,
+                    flex: 1,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      textAlign: "center",
+                      fontSize: 12,
+                    }}
+                  >
+                    📍 I'm Here
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                onPress={() => addToCalendar(item)}
+                style={{
+                  backgroundColor: "#1d4ed8",
+                  padding: 8,
+                  borderRadius: 8,
+                  flex: 1,
+                }}
+              >
+                <Text
+                  style={{ color: "white", textAlign: "center", fontSize: 12 }}
+                >
+                  📅 Calendar
                 </Text>
               </TouchableOpacity>
-            )}
 
-            <TouchableOpacity onPress={() => addToCalendar(item)}>
-              <Text style={{ color: "#3b82f6", marginTop: 6 }}>
-                Add to Calendar
-              </Text>
-            </TouchableOpacity>
+              {/* View on in-app map */}
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/maps",
+                    params: { siteId: item.siteId },
+                  })
+                }
+                style={{
+                  backgroundColor: "#7c3aed",
+                  padding: 8,
+                  borderRadius: 8,
+                  flex: 1,
+                }}
+              >
+                <Text
+                  style={{ color: "white", textAlign: "center", fontSize: 12 }}
+                >
+                  🗺️ View Map
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() =>
-                Linking.openURL(
-                  `https://www.google.com/maps/dir/?api=1&destination=${site.latitude},${site.longitude}`,
-                )
-              }
-            >
-              <Text style={{ color: "#facc15", marginTop: 6 }}>
-                Navigate 🧭
-              </Text>
-            </TouchableOpacity>
+              {/* Navigate via Google Maps */}
+              <TouchableOpacity
+                onPress={() =>
+                  Linking.openURL(
+                    `https://www.google.com/maps/dir/?api=1&destination=${site.latitude},${site.longitude}`,
+                  )
+                }
+                style={{
+                  backgroundColor: "#b45309",
+                  padding: 8,
+                  borderRadius: 8,
+                  flex: 1,
+                }}
+              >
+                <Text
+                  style={{ color: "white", textAlign: "center", fontSize: 12 }}
+                >
+                  🧭 Navigate
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         );
       }}
