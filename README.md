@@ -1,50 +1,115 @@
-# Welcome to your Expo app 👋
+# SolYield Field Companion App 🌞
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile app built for the **SolYield Mobile Migration Hackathon — "The Field Technician's Survival Guide"**.
 
-## Get started
+Built for field technicians like Arjun to manage solar farm visits, check in on-site, navigate to locations, and generate reports — all from a mobile device.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 👷 Technician Profile
+- **Name**: Arjun Menon
+- **Company**: CLIMAI CLEANTECH PVT LTD
+- **Participation**: Individual
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🏗️ Architecture & Approach
 
-In the output, you'll find options to open the app in a
+The app follows a **file-based routing** architecture using Expo Router, with each tab representing a core workflow for the field technician. State is managed locally with React `useState` for Level 1. The app is built mobile-first with offline capability planned for Level 2.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Key design decisions:
+- Expo Managed Workflow for rapid development
+- `react-native-maps` for native map rendering
+- `expo-calendar` for native device calendar sync
+- `expo-print` + `expo-sharing` for on-device PDF generation
+- Haversine formula for GPS geofencing validation
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## ✅ Level 1 — "The Connected Technician"
 
-When you're ready, run:
+| # | Challenge | Description | Status |
+|---|-----------|-------------|--------|
+| 1.1 | The Day's Agenda | Google Calendar sync for assigned visits | ✅ Done |
+| 1.2 | "I'm Here!" Check-in | GPS geofencing with 500m radius validation | ✅ Done |
+| 1.3 | Site Navigation | Native map with pins, callouts & Google Maps navigation | ✅ Done |
+| 1.4 | The Report Card | PDF report with bar chart & performance table | ✅ Done |
 
-```bash
-npm run reset-project
+---
+
+## 🛠️ Tech Stack
+
+| Category | Library |
+|----------|---------|
+| Language | TypeScript (Strict Mode) |
+| Framework | React Native (Expo Managed Workflow) |
+| Navigation | Expo Router (file-based) |
+| Maps | react-native-maps |
+| Charts | react-native-gifted-charts |
+| PDF | expo-print + expo-sharing |
+| Calendar | expo-calendar |
+| Location | expo-location |
+
+---
+
+## 📱 Screens
+
+- **Home** — Dashboard with today's visit stats and quick actions
+- **Visits** — Field operations: check-in, calendar sync, map view, PDF report
+- **Map** — Native map with site pins, callouts and Google Maps navigation
+- **Sites** — List of all assigned solar farm sites
+
+---
+
+## 📸 Screenshots
+| Home | Visits | Map | PDF |
+|------|--------|-----|-----|
+
+![home](https://github.com/user-attachments/assets/131ca20f-4f43-47e9-a64d-045fe96f7c90)
+![sites](https://github.com/user-attachments/assets/4f2e12c8-f03f-4956-ba1b-06d969900380)
+![maps](https://github.com/user-attachments/assets/d0f2ce62-e82c-4bf9-8723-07c4ee8005e1)
+![pdf](https://github.com/user-attachments/assets/0550a533-74f3-4e64-8476-2a109a4b6677)
+![visits](https://github.com/user-attachments/![report](https://github.com/user-attachments/assets/18488bec-7082-4c92-a35a-3a1a9c688b6c)
+assets/cd523f92-59d8-4dae-ad12-c3836af22886)
+
+
+## 🎥 Video Walkthrough
+
+| Level | Link |
+|-------|------|
+| Level 1 — Calendar → Site Visit → Check-in (Success/Fail) | [Watch here]|
+
+https://github.com/user-attachments/assets/6e15de5e-874f-46c0-9834-79e8c2ac9410
+
+
+
+
+Scan the QR code with **Expo Go** on your Android or iOS device.
+
+---
+
+## 📁 Project Structure
+```
+app/
+├── (tabs)/
+│   ├── _layout.tsx    # Tab navigator
+│   ├── index.tsx      # Home dashboard
+│   ├── visits.tsx     # Field operations
+│   ├── maps.tsx       # Site map
+│   └── sites.tsx      # Sites list
+components/            # Reusable UI components
+constants/             # Theme, colors, fonts
+hooks/                 # Custom hooks
+assets/
+└── screenshots/       # App screenshots for README
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## 🌿 Branching Strategy
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Branch | Purpose |
+|--------|---------|
+| `level-1` | Level 1 complete submission |
+| `level-2` | Level 2 offline features *(in progress)* |
+| `main` | Final merged submission |
