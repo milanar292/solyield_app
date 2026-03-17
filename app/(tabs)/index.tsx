@@ -17,23 +17,16 @@ export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: "#0f172a" }}
-      contentContainerStyle={{ padding: 20 }}
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#0f172a",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
-      {/* Header */}
-      <Text style={{ color: "#94a3b8", fontSize: 14, marginTop: 10 }}>
-        Welcome back,
-      </Text>
-      <Text
-        style={{
-          color: "white",
-          fontSize: 28,
-          fontWeight: "bold",
-          marginBottom: 4,
-        }}
-      >
-        Arjun Menon 👷
+      <Text style={{ color: "white", fontSize: 24 }}>
+        ARJUN'S FIELD COMPANION✅
       </Text>
       <Text style={{ color: "#94a3b8", fontSize: 13, marginBottom: 24 }}>
         {new Date().toDateString()}

@@ -1,24 +1,45 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { DatabaseProvider } from "@nozbe/watermelondb/react";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { Component, useEffect } from "react";
+import { Text, View } from "react-native";
+import { database } from "../src/database";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+SplashScreen.preventAutoHideAsync();
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+class ErrorBoundary extends Component {
+  state = { error: null };
+  componentDidCatch(error) {
+    this.setState({ error });
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <View style={{ flex: 1, backgroundColor: "black", padding: 40 }}>
+          <Text style={{ color: "red", fontSize: 16 }}>
+            {this.state.error.toString()}
+          </Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <DatabaseProvider database={database}>
+        <View style={{ flex: 1, backgroundColor: "#0f172a" }}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </View>
+      </DatabaseProvider>
+    </ErrorBoundary>
   );
 }
